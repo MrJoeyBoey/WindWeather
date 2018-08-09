@@ -12,6 +12,10 @@
         <item name="colorControlNormal">#FFF</item>
         <item name="colorControlActivated">#FFF</item>
     </style>
+    
+    <style name="TransParent" parent="AppTheme">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
 
 
 </resources>

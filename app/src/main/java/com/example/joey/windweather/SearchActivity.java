@@ -79,7 +79,6 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 if (i == EditorInfo.IME_ACTION_SEARCH) {
-                    Log.d(TAG, "search键");
 
                     searchCities(textView.getText().toString());
 
@@ -98,7 +97,6 @@ public class SearchActivity extends AppCompatActivity {
     public void searchCities(String cityName){
         String cityUrl="https://search.heweather.com/find?location="+cityName+"&key=e9b90a4dff4e4ae5b974aa29b3466cfe";
         HttpUtil.sendOkHttpRequest(cityUrl, new Callback() {
-
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseCity=response.body().string();
@@ -109,18 +107,16 @@ public class SearchActivity extends AppCompatActivity {
                     for(int i=0;i<city.basicList.size();i++){
                         Basic basic=city.basicList.get(i);
                         hotCities.add(basic.location);
-
-                        Log.d(TAG, "城市ID"+basic.cid);
+                       /* Log.d(TAG, "城市ID"+basic.cid);
                         Log.d(TAG, "城市名称"+basic.location);
                         Log.d(TAG, "所在省份"+basic.admin_area);
-                        Log.d(TAG, "大小"+city.basicList.size());
+                        Log.d(TAG, "大小"+city.basicList.size());*/
                     }
                 }
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
                         hotCityTip.setVisibility(View.GONE);
                         if(hotCities!=null){
                             GridLayoutManager layoutManager=new GridLayoutManager(SearchActivity.this,1);

@@ -1,13 +1,10 @@
 package com.example.joey.windweather;
 
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -104,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
 
         switch (latestCity.size()){
             case 1:
-
                 if(weather1.isEmpty()){
                     queryWeather(weatherNows.get(0).basic.location);
                 }else {

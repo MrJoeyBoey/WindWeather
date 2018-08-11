@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private List<Weather> weathers=new ArrayList<>();
     private List<WeatherNow>weatherNows=new ArrayList<>();
     private String weather1,weather2,weather3;
+    private String weathernow1,weathernow2,weathernow3;
+    private long mLastUpdateTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,20 +57,39 @@ public class MainActivity extends AppCompatActivity {
         icon3=(ImageView)findViewById(R.id.icon3);
         icon1.setSelected(true);
 
+
+
         SharedPreferences pref=getSharedPreferences("LatestCity", MODE_PRIVATE);
         String name1=pref.getString("city1","");
         String name2=pref.getString("city2","");
         SharedPreferences pref2=getSharedPreferences("LatestPage", MODE_PRIVATE);
         int latestpage = pref2.getInt("latestpage", 0);
 
-        queryWeatherNow("auto_ip");
+        SharedPreferences pref3=getSharedPreferences("Weather",MODE_PRIVATE);
+        weather1=pref3.getString("responseWeather1","");
+        weather2=pref3.getString("responseWeather2","");
+        weather3=pref3.getString("responseWeather3","");
 
-        latestCity.add(0,weatherNows.get(0).basic.location);
+        SharedPreferences pref4=getSharedPreferences("WeatherNow",MODE_PRIVATE);
+        weathernow1=pref4.getString("responseNow1","");
+        weathernow2=pref4.getString("responseNow2","");
+        weathernow3=pref4.getString("responseNow3","");
+
+        if(weather1.isEmpty()){
+            queryWeatherNow("auto_ip");
+            queryWeather("auto_ip");
+        }else {
+            weathers.add(Utility.handleWeatherResponse(weather1));
+            weatherNows.add(Utility.handleWeatherNowResponse(weathernow1));
+        }
+
+        latestCity.add(weatherNows.get(0).basic.location);
+
         if(!name1.isEmpty()){
-            latestCity.add(1,name1);
+            latestCity.add(name1);
         }
         if(!name2.isEmpty()){
-            latestCity.add(2,name2);
+            latestCity.add(name2);
         }
         if(latestCity.size()==1){
             icon2.setVisibility(View.GONE);
@@ -94,50 +115,35 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-        SharedPreferences pref3=getSharedPreferences("Weather",MODE_PRIVATE);
-        weather1=pref3.getString("responseWeather1","");
-        weather2=pref3.getString("responseWeather2","");
-        weather3=pref3.getString("responseWeather3","");
-
         switch (latestCity.size()){
-            case 1:
-                if(weather1.isEmpty()){
-                    queryWeather(weatherNows.get(0).basic.location);
-                }else {
-                    weathers.add(Utility.handleWeatherResponse(weather1));
-                }
-                break;
             case 2:
-                queryWeatherNow(latestCity.get(1));
-
-                weathers.add(Utility.handleWeatherResponse(weather1));
-
                 if(weather2.isEmpty()){
                     queryWeather(latestCity.get(1));
+                    queryWeatherNow(latestCity.get(1));
                 }else {
                     weathers.add(Utility.handleWeatherResponse(weather2));
+                    weatherNows.add(Utility.handleWeatherNowResponse(weathernow2));
                 }
                 break;
             case 3:
-                queryWeatherNow(latestCity.get(1));
-                queryWeatherNow(latestCity.get(2));
-
-                weathers.add(Utility.handleWeatherResponse(weather1));
-
                 if(getIntent().getBooleanExtra("defaut",false)){
                     if(weather3.isEmpty()){
                         weathers.add(Utility.handleWeatherResponse(weather2));
+                        weatherNows.add(Utility.handleWeatherNowResponse(weathernow2));
                         queryWeather(latestCity.get(2));
+                        queryWeatherNow(latestCity.get(2));
                     }else {
                         weathers.add(Utility.handleWeatherResponse(weather3));
+                        weatherNows.add(Utility.handleWeatherNowResponse(weathernow3));
                         queryWeather(latestCity.get(2));
+                        queryWeatherNow(latestCity.get(2));
                     }
                 }else {
                     weathers.add(Utility.handleWeatherResponse(weather2));
                     weathers.add(Utility.handleWeatherResponse(weather3));
+                    weatherNows.add(Utility.handleWeatherNowResponse(weathernow2));
+                    weatherNows.add(Utility.handleWeatherNowResponse(weathernow3));
                 }
-
-
                 break;
         }
 
@@ -148,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
         }else if(weatherNows.get(latestpage).now.cond_txt.contains("阴")){
             mainLayout.setBackgroundResource(R.drawable.cloudyday);
         }
-
+        
         viewPager.setAdapter(new MyPageAdapter(MainActivity.this,latestCity,weathers,weatherNows));
         viewPager.setCurrentItem(latestpage);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -269,12 +275,36 @@ public class MainActivity extends AppCompatActivity {
         final Object obj = new Object();
         final String url="https://free-api.heweather.com/s6/weather/now?location="+cityId+"&key=e9b90a4dff4e4ae5b974aa29b3466cfe";
         HttpUtil.sendOkHttpRequest(url, new Callback() {
-
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseNow=response.body().string();
                 WeatherNow weatherNow=Utility.handleWeatherNowResponse(responseNow);
-                weatherNows.add(weatherNow);
+
+                if(weathernow1.isEmpty()){
+                    weatherNows.add(weatherNow);
+
+                    SharedPreferences.Editor editor=getSharedPreferences("WeatherNow", MODE_PRIVATE).edit();
+                    editor.putString("responseNow1",responseNow);
+                    editor.apply();
+                }else if(weathernow2.isEmpty()){
+                    weatherNows.add(weatherNow);
+
+                    SharedPreferences.Editor editor=getSharedPreferences("WeatherNow", MODE_PRIVATE).edit();
+                    editor.putString("responseNow2",responseNow);
+                    editor.apply();
+                }else if(weathernow3.isEmpty()){
+                    weatherNows.add(weatherNow);
+
+                    SharedPreferences.Editor editor=getSharedPreferences("WeatherNow", MODE_PRIVATE).edit();
+                    editor.putString("responseNow3",responseNow);
+                    editor.apply();
+                }else {
+                    weatherNows.add(weatherNow);
+                    SharedPreferences.Editor editor=getSharedPreferences("WeatherNow", MODE_PRIVATE).edit();
+                    editor.putString("responseNow",responseNow);
+                    editor.putString("responseNow",weather3);
+                    editor.apply();
+                }
 
                 synchronized (obj){
                     obj.notify();
@@ -292,7 +322,6 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-
     }
 
 

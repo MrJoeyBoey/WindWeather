@@ -1,6 +1,8 @@
 package com.example.joey.windweather;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,6 +23,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.MyViewHold
 
     private List<String> mCityList;
     private Context mContext;
+    private ProgressDialog progressDialog;
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         TextView cityItem;
@@ -45,12 +48,20 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.MyViewHold
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(progressDialog==null){
+                    progressDialog=new ProgressDialog(mContext);
+                    progressDialog.setMessage("加载中...");
+                    progressDialog.setCanceledOnTouchOutside(false);
+                }
+                progressDialog.show();
+
                 int pos=viewHolder.getAdapterPosition();
                 Intent intent=new Intent(mContext,MainActivity.class);
                 intent.putExtra("defaut",true);
                 mContext.startActivity(intent);
                 Activity activity=(Activity)mContext;
                 activity.overridePendingTransition(R.anim.slide_in_from_left,R.anim.slide_out_from_right);
+                activity.finish();
 
                 SharedPreferences pref=mContext.getSharedPreferences("LatestCity", MODE_PRIVATE);
                 String name1=pref.getString("city1","");

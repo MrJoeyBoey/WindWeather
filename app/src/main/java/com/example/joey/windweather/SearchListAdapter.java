@@ -2,6 +2,7 @@ package com.example.joey.windweather;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,6 +24,7 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
     
     private Context mContext;
     private List<String> mCityList;
+    private ProgressDialog progressDialog;
 
     class ViewHolder extends RecyclerView.ViewHolder {
          TextView cityList;
@@ -46,13 +48,20 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int pos=viewHolder.getAdapterPosition();
+                if(progressDialog==null){
+                    progressDialog=new ProgressDialog(mContext);
+                    progressDialog.setMessage("加载中...");
+                    progressDialog.setCanceledOnTouchOutside(false);
+                }
+                progressDialog.show();
 
+                int pos=viewHolder.getAdapterPosition();
                 Intent intent=new Intent(mContext,MainActivity.class);
                 intent.putExtra("defaut",true);
                 mContext.startActivity(intent);
                 Activity activity=(Activity)mContext;
                 activity.overridePendingTransition(R.anim.slide_in_from_left,R.anim.slide_out_from_right);
+                activity.finish();
 
                 SharedPreferences pref=mContext.getSharedPreferences("LatestCity", MODE_PRIVATE);
                 String name1=pref.getString("city1","");
@@ -71,8 +80,6 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
                     editor.putString("city1",name2);
                     editor.apply();
                 }
-
-
             }
         });
         return viewHolder;

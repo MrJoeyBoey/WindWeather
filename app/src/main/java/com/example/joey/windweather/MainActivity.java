@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.example.joey.windweather.Now.WeatherNow;
 import com.example.joey.windweather.Util.HttpUtil;
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_main);
 
+        final LinearLayout mainLayout=(LinearLayout)findViewById(R.id.main_layout);
         ImageView cityAdd=(ImageView)findViewById(R.id.city_add);
         ImageView aboutMe=(ImageView)findViewById(R.id.about_me);
         ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
@@ -82,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
         }else if(getIntent().getBooleanExtra("defaut",false)&&latestCity.size()==2){
             latestpage =1;
         }
+
         switch (latestpage){
             case 0:
                 icon1open();
@@ -142,6 +145,14 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
+        if(weatherNows.get(latestpage).now.cond_txt.contains("晴")||weatherNows.get(latestpage).now.cond_txt.contains("云")){
+            mainLayout.setBackgroundResource(R.drawable.sunnyday);
+        }else if(weatherNows.get(latestpage).now.cond_txt.contains("雨")){
+            mainLayout.setBackgroundResource(R.drawable.rainyday);
+        }else if(weatherNows.get(latestpage).now.cond_txt.contains("阴")){
+            mainLayout.setBackgroundResource(R.drawable.cloudyday);
+        }
+
         viewPager.setAdapter(new MyPageAdapter(MainActivity.this,latestCity,weathers,weatherNows));
         viewPager.setCurrentItem(latestpage);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -150,6 +161,13 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void onPageSelected(int position) {
+                if(weatherNows.get(position).now.cond_txt.contains("晴")||weatherNows.get(position).now.cond_txt.contains("云")){
+                    mainLayout.setBackgroundResource(R.drawable.sunnyday);
+                }else if(weatherNows.get(position).now.cond_txt.contains("雨")){
+                    mainLayout.setBackgroundResource(R.drawable.rainyday);
+                }else if(weatherNows.get(position).now.cond_txt.contains("阴")){
+                    mainLayout.setBackgroundResource(R.drawable.cloudyday);
+                }
                 switch (position){
                     case 0:
                         icon1open();

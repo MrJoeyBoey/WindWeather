@@ -57,8 +57,6 @@ public class MainActivity extends AppCompatActivity {
         icon3=(ImageView)findViewById(R.id.icon3);
         icon1.setSelected(true);
 
-
-
         SharedPreferences pref=getSharedPreferences("LatestCity", MODE_PRIVATE);
         String name1=pref.getString("city1","");
         String name2=pref.getString("city2","");
@@ -74,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
         weathernow1=pref4.getString("responseNow1","");
         weathernow2=pref4.getString("responseNow2","");
         weathernow3=pref4.getString("responseNow3","");
+
+        SharedPreferences pref5=getSharedPreferences("LastUpdateTime",MODE_PRIVATE);
+        mLastUpdateTime=pref5.getLong("mLastUpdateTime",0);
 
         if(weather1.isEmpty()){
             queryWeatherNow("auto_ip");
@@ -154,7 +155,33 @@ public class MainActivity extends AppCompatActivity {
         }else if(weatherNows.get(latestpage).now.cond_txt.contains("阴")){
             mainLayout.setBackgroundResource(R.drawable.cloudyday);
         }
-        
+
+        Log.d(TAG, "看看时间"+mLastUpdateTime);
+        Log.d(TAG, "看看时间"+System.currentTimeMillis());
+        if(System.currentTimeMillis()-mLastUpdateTime>3600000){
+            weathers.clear();
+            weatherNows.clear();
+            queryWeather("auto_ip");
+            queryWeatherNow("auto_ip");
+            switch (latestCity.size()){
+                case 2:
+                    queryWeather(latestCity.get(1));
+                    queryWeatherNow(latestCity.get(1));
+                    break;
+                case 3:
+                    queryWeather(latestCity.get(1));
+                    queryWeather(latestCity.get(2));
+                    queryWeatherNow(latestCity.get(1));
+                    queryWeatherNow(latestCity.get(2));
+                    break;
+            }
+        }
+        mLastUpdateTime=System.currentTimeMillis();
+        SharedPreferences.Editor editor=getSharedPreferences("LastUpdateTime", MODE_PRIVATE).edit();
+        editor.putLong("mLastUpdateTime",mLastUpdateTime);
+        editor.apply();
+
+
         viewPager.setAdapter(new MyPageAdapter(MainActivity.this,latestCity,weathers,weatherNows));
         viewPager.setCurrentItem(latestpage);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {

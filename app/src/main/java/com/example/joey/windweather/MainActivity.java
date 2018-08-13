@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences pref=getSharedPreferences("LatestCity", MODE_PRIVATE);
         String name1=pref.getString("city1","");
         String name2=pref.getString("city2","");
+
         SharedPreferences pref2=getSharedPreferences("LatestPage", MODE_PRIVATE);
         int latestpage = pref2.getInt("latestpage", 0);
 
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             weatherNows.add(Utility.handleWeatherNowResponse(weathernow1));
         }
 
-        latestCity.add(weatherNows.get(0).basic.location);
+        latestCity.add(weathers.get(0).basic.location);
 
         if(!name1.isEmpty()){
             latestCity.add(name1);
@@ -148,7 +149,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-        if(weatherNows.get(latestpage).now.cond_txt.contains("晴")||weatherNows.get(latestpage).now.cond_txt.contains("云")){
+        if(weatherNows.get(latestpage).now.cond_txt.contains("晴") ||
+                weatherNows.get(latestpage).now.cond_txt.contains("云")){
             mainLayout.setBackgroundResource(R.drawable.sunnyday);
         }else if(weatherNows.get(latestpage).now.cond_txt.contains("雨")){
             mainLayout.setBackgroundResource(R.drawable.rainyday);
@@ -156,8 +158,6 @@ public class MainActivity extends AppCompatActivity {
             mainLayout.setBackgroundResource(R.drawable.cloudyday);
         }
 
-        Log.d(TAG, "看看时间"+mLastUpdateTime);
-        Log.d(TAG, "看看时间"+System.currentTimeMillis());
         if(System.currentTimeMillis()-mLastUpdateTime>3600000){
             weathers.clear();
             weatherNows.clear();
@@ -175,11 +175,10 @@ public class MainActivity extends AppCompatActivity {
                     queryWeatherNow(latestCity.get(2));
                     break;
             }
+            SharedPreferences.Editor editor=getSharedPreferences("LastUpdateTime", MODE_PRIVATE).edit();
+            editor.putLong("mLastUpdateTime",System.currentTimeMillis());
+            editor.apply();
         }
-        mLastUpdateTime=System.currentTimeMillis();
-        SharedPreferences.Editor editor=getSharedPreferences("LastUpdateTime", MODE_PRIVATE).edit();
-        editor.putLong("mLastUpdateTime",mLastUpdateTime);
-        editor.apply();
 
 
         viewPager.setAdapter(new MyPageAdapter(MainActivity.this,latestCity,weathers,weatherNows));
@@ -287,7 +286,6 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(Call call, IOException e) {
             }
 
-
         });
         synchronized (obj){
             try {
@@ -328,18 +326,16 @@ public class MainActivity extends AppCompatActivity {
                 }else {
                     weatherNows.add(weatherNow);
                     SharedPreferences.Editor editor=getSharedPreferences("WeatherNow", MODE_PRIVATE).edit();
-                    editor.putString("responseNow",responseNow);
-                    editor.putString("responseNow",weather3);
+                    editor.putString("responseNow3",responseNow);
+                    editor.putString("responseNow2",weathernow3);
                     editor.apply();
                 }
-
                 synchronized (obj){
                     obj.notify();
                 }
             }
             @Override
             public void onFailure(Call call, IOException e) {
-
             }
         });
         synchronized (obj){
